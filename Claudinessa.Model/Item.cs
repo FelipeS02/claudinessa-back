@@ -18,7 +18,7 @@ namespace Claudinessa.Model
 
         public int Id { get; set; }
         public int IdProduct { get; set; }
-        public string Name { get; set; };
+        public string Name { get; set; } = string.Empty;
         public float Price { get; set; }
         public string Img { get; set; } = string.Empty;
         public int Amount { get; set; }

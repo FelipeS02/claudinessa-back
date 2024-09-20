@@ -12,8 +12,8 @@ namespace Claudinessa.Model
     {
         [JsonPropertyOrder(int.MinValue)]
         public int? Id { get; set; }
-        public string Name { get; set; }
-        public IEnumerable<Option> Options { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public IEnumerable<Option> Options { get; set; } = Enumerable.Empty<Option>();
         public string? Description { get; set; }
         public string? Img { get; set; }
         public bool IsAvailable { get; set; }

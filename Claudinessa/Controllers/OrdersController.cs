@@ -1,5 +1,6 @@
 ﻿using Claudinessa.Data.Repositories.Orders.Interface;
 using Claudinessa.Model;
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Claudinessa.Controllers
@@ -30,15 +31,15 @@ namespace Claudinessa.Controllers
         public async Task<IActionResult> GetOrderDetails(int idOrder)
         {
             var order = await _ordersRepository.GetOrderById(idOrder);
-            Console.WriteLine(order.Id);
+
             var items = await _itemsRepository.GetItems(idOrder);
 
             foreach (var item in items)
             {
-                if (item.Id.HasValue)
-                {
-                    item.Extras = await _itemsRepository.GetItemExtras(item.Id.Value);
-                }
+                if (item.Id == 0)
+                    return BadRequest("Order item id cannot be zero");
+
+                item.Extras = await _itemsRepository.GetItemExtras(item.Id);
             }
 
             order.Products = items;
@@ -49,16 +50,17 @@ namespace Claudinessa.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateOrder([FromBody] Order order)
         {
+            if (order == null)
+                return BadRequest("Order cannot be null");
+
+            if (order.Products == null || !order.Products.Any())
+                return BadRequest("Order must have at least one product");
+
             int idOrder = await _ordersRepository.CreateOrder(order);
 
-            if (order.Products != null)
-            {
-                var extrasById = await _itemsRepository.CreateItems(order.Products, idOrder);
+            var extrasById = await _itemsRepository.CreateItems(order.Products, idOrder);
 
-                return Ok(await _itemsRepository.AddItemExtras(extrasById, idOrder));
-            }
-
-            return Ok(true);
+            return Ok(await _itemsRepository.AddItemExtras(extrasById, idOrder));
         }
 
         [HttpPut("{idOrder}")]
